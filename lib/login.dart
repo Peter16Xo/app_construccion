@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: 'Nombre de usuario',
+                    hintText: 'Usuario',
                     prefixIcon: const Icon(Icons.person),
                     filled: true,
                     fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.2),
