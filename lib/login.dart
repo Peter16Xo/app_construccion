@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   final String predefinedUser = 'admin';
-  final String predefinedPass = '12345';
+  final String predefinedPass = '123456';
 
   void _login() {
     final user = _usernameController.text.trim();
