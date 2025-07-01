@@ -4,6 +4,9 @@ import 'listaobras.dart';
 class RegistrarObraPage extends StatefulWidget {
   const RegistrarObraPage({super.key});
 
+  // Lista estática para compartir obras entre páginas
+  static List<Map<String, dynamic>> obras = [];
+
   @override
   State<RegistrarObraPage> createState() => _RegistrarObraPageState();
 }
@@ -17,7 +20,6 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
   DateTime? _fechaFin;
 
   static int contadorObras = 0;
-  static List<Map<String, dynamic>> obras = [];
 
   Future<void> _selectFechaInicio() async {
     final DateTime? picked = await showDatePicker(
@@ -48,41 +50,45 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
   }
 
   void _guardarObra() {
-  if (_formKey.currentState!.validate() && _fechaInicio != null && _fechaFin != null) {
-    setState(() {
-      contadorObras++;
-      obras.add({
-        'numero': contadorObras,
-        'nombre': _nombreController.text,
-        'cliente': _clienteController.text,
-        'ubicacion': _ubicacionController.text,
-        'fechaInicio': _fechaInicio,
-        'fechaFin': _fechaFin,
+    if (_formKey.currentState!.validate() &&
+        _fechaInicio != null &&
+        _fechaFin != null) {
+      setState(() {
+        contadorObras++;
+        // Usamos la lista estática en el widget RegistrarObraPage
+        RegistrarObraPage.obras.add({
+          'numero': contadorObras,
+          'nombre': _nombreController.text,
+          'cliente': _clienteController.text,
+          'ubicacion': _ubicacionController.text,
+          'fechaInicio': _fechaInicio,
+          'fechaFin': _fechaFin,
+        });
+
+        // Limpiar campos después de guardar
+        _nombreController.clear();
+        _clienteController.clear();
+        _ubicacionController.clear();
+        _fechaInicio = null;
+        _fechaFin = null;
       });
 
-      // Limpiar campos después de guardar
-      _nombreController.clear();
-      _clienteController.clear();
-      _ubicacionController.clear();
-      _fechaInicio = null;
-      _fechaFin = null;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Obra registrada correctamente')),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Completa todos los campos')),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Obra registrada correctamente')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa todos los campos')),
+      );
+    }
   }
-}
-
 
   void _verObras() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ListaObrasPage(obras: obras)),
+      MaterialPageRoute(
+        builder: (context) => ListaObrasPage(obras: RegistrarObraPage.obras),
+      ),
     );
   }
 
@@ -104,7 +110,9 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
             children: [
               TextFormField(
                 controller: _nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre del Proyecto'),
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del Proyecto',
+                ),
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               TextFormField(
@@ -119,16 +127,20 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
               ),
               const SizedBox(height: 15),
               ListTile(
-                title: Text(_fechaInicio == null
-                    ? 'Seleccionar Fecha de Inicio'
-                    : 'Inicio: ${_fechaInicio!.day}/${_fechaInicio!.month}/${_fechaInicio!.year}'),
+                title: Text(
+                  _fechaInicio == null
+                      ? 'Seleccionar Fecha de Inicio'
+                      : 'Inicio: ${_fechaInicio!.day}/${_fechaInicio!.month}/${_fechaInicio!.year}',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _selectFechaInicio,
               ),
               ListTile(
-                title: Text(_fechaFin == null
-                    ? 'Seleccionar Fecha Fin Estimada'
-                    : 'Fin: ${_fechaFin!.day}/${_fechaFin!.month}/${_fechaFin!.year}'),
+                title: Text(
+                  _fechaFin == null
+                      ? 'Seleccionar Fecha Fin Estimada'
+                      : 'Fin: ${_fechaFin!.day}/${_fechaFin!.month}/${_fechaFin!.year}',
+                ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _selectFechaFin,
               ),
@@ -142,22 +154,29 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Guardar Obra', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Guardar Obra',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 15),
               OutlinedButton(
-  style: OutlinedButton.styleFrom(
-    foregroundColor: Theme.of(context).colorScheme.primary,
-    side: BorderSide(color: Theme.of(context).colorScheme.primary),
-    padding: const EdgeInsets.symmetric(vertical: 14),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  onPressed: _verObras,
-  child: const Text('Ver Obras Registradas', style: TextStyle(fontWeight: FontWeight.bold)),
-),
-
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: _verObras,
+                child: const Text(
+                  'Ver Obras Registradas',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
         ),

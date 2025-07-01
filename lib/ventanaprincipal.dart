@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
-import 'materialesUsados.dart';
+import 'MaterialesUsados/registrarmaterialesusados.dart';
 import 'personalAsignado.dart';
 import 'costosTotales.dart';
-import 'login.dart'; 
+import 'login.dart';
 
 class MyHomePageVentanaPrincipal extends StatefulWidget {
   const MyHomePageVentanaPrincipal({super.key});
@@ -18,10 +18,10 @@ class _MyHomePageVentanaPrincipalState
     extends State<MyHomePageVentanaPrincipal> {
   int currentPageIndex = 0;
 
-  static const List<Widget> _pages = [
+  static final List<Widget> _pages = [
     RegistrarObraPage(),
     AvanceObraPage(),
-    MaterialesUsadosPage(),
+    RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
     PersonalAsignadoPage(),
     CostosTotalesPage(),
   ];
@@ -54,13 +54,22 @@ class _MyHomePageVentanaPrincipalState
             onSelected: (value) {
               switch (value) {
                 case 'acerca':
-                  _mostrarDialogo('Acerca De', 'Versión 1.0\nDesarrollado por Grupo #4');
+                  _mostrarDialogo(
+                    'Acerca De',
+                    'Versión 1.0\nDesarrollado por Grupo #4',
+                  );
                   break;
                 case 'ayuda':
-                  _mostrarDialogo('Ayuda', 'Navega entre secciones con la barra inferior.\nRegistra datos correctamente.');
+                  _mostrarDialogo(
+                    'Ayuda',
+                    'Navega entre secciones con la barra inferior.\nRegistra datos correctamente.',
+                  );
                   break;
                 case 'config':
-                  _mostrarDialogo('Configuración', 'Configuración aún no disponible.');
+                  _mostrarDialogo(
+                    'Configuración',
+                    'Configuración aún no disponible.',
+                  );
                   break;
                 case 'cerrar':
                   Navigator.pushReplacement(
@@ -82,7 +91,9 @@ class _MyHomePageVentanaPrincipalState
       body: _pages[currentPageIndex],
       bottomNavigationBar: NavigationBar(
         height: 70,
-        indicatorColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+        indicatorColor: Theme.of(
+          context,
+        ).colorScheme.secondary.withOpacity(0.2),
         selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {
           setState(() {
