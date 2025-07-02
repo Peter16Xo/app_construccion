@@ -3,8 +3,8 @@ import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
 import 'personalAsignado.dart';
-import 'modulo_costos_totales/screens/costos_totales_screen.dart';
 import 'login.dart';
+import 'modulo_costos_totales/screens/costos_totales_screen.dart';
 
 class MyHomePageVentanaPrincipal extends StatefulWidget {
   const MyHomePageVentanaPrincipal({super.key});
@@ -23,8 +23,8 @@ class _MyHomePageVentanaPrincipalState
     AvanceObraPage(),
     RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
     PersonalAsignadoPage(),
-    CostosTotalesScreen(),
-    
+    CostosTotalesScreen(obras: RegistrarObraPage.obras),
+
   ];
 
   void _mostrarDialogo(String titulo, String contenido) {

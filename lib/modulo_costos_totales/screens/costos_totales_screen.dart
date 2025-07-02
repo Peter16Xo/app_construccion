@@ -3,12 +3,17 @@ import '../models/costo_total.dart';
 import '../widgets/campo_texto.dart';
 
 class CostosTotalesScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> obras;
+
+  const CostosTotalesScreen({super.key, required this.obras});
+
   @override
   _CostosTotalesScreenState createState() => _CostosTotalesScreenState();
 }
 
 class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
-  final TextEditingController idObraController = TextEditingController();
+  String? obraSeleccionada;
+
   final TextEditingController presupuestoController = TextEditingController();
   final TextEditingController materialesController = TextEditingController();
   final TextEditingController manoObraController = TextEditingController();
@@ -20,7 +25,7 @@ class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
 
   void guardarRegistro() {
     final nuevo = CostoTotal(
-      idObra: idObraController.text,
+      idObra: obraSeleccionada ?? '',
       presupuesto: double.tryParse(presupuestoController.text) ?? 0,
       materiales: double.tryParse(materialesController.text) ?? 0,
       manoObra: double.tryParse(manoObraController.text) ?? 0,
@@ -40,7 +45,7 @@ class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
 
   void editarRegistro(int index) {
     final c = listaCostos[index];
-    idObraController.text = c.idObra;
+    obraSeleccionada = c.idObra;
     presupuestoController.text = c.presupuesto.toString();
     materialesController.text = c.materiales.toString();
     manoObraController.text = c.manoObra.toString();
@@ -59,7 +64,7 @@ class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
   }
 
   void limpiarCampos() {
-    idObraController.clear();
+    obraSeleccionada = null;
     presupuestoController.clear();
     materialesController.clear();
     manoObraController.clear();
@@ -82,7 +87,30 @@ class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            campoTexto("ID Obra", idObraController),
+            DropdownButtonFormField<String>(
+              value: obraSeleccionada,
+              decoration: InputDecoration(
+                labelText: 'Selecciona Obra',
+                filled: true,
+                fillColor: Color.fromARGB(255, 230, 230, 230),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              items: widget.obras.map((obra) {
+                final numero = obra['numero'].toString();
+                final nombre = obra['nombre'];
+                return DropdownMenuItem<String>(
+                  value: numero,
+                  child: Text('$nombre (Obra #$numero)'),
+                );
+              }).toList(),
+              onChanged: (valor) {
+                setState(() {
+                  obraSeleccionada = valor;
+                });
+              },
+            ),
             campoTexto("Presupuesto", presupuestoController),
             campoTexto("Materiales", materialesController),
             campoTexto("Mano de Obra", manoObraController),
@@ -157,3 +185,4 @@ class _CostosTotalesScreenState extends State<CostosTotalesScreen> {
     );
   }
 }
+
