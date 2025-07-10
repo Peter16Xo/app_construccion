@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import 'listaobras.dart';
 
 class RegistrarObraPage extends StatefulWidget {
   const RegistrarObraPage({super.key});
-
-  // Lista estática para compartir obras entre páginas
-  static List<Map<String, dynamic>> obras = [];
 
   @override
   State<RegistrarObraPage> createState() => _RegistrarObraPageState();
@@ -18,8 +16,6 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
   final _ubicacionController = TextEditingController();
   DateTime? _fechaInicio;
   DateTime? _fechaFin;
-
-  static int contadorObras = 0;
 
   Future<void> _selectFechaInicio() async {
     final DateTime? picked = await showDatePicker(
@@ -49,33 +45,30 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
     }
   }
 
-  void _guardarObra() {
+  Future<void> _guardarObra() async {
     if (_formKey.currentState!.validate() &&
         _fechaInicio != null &&
         _fechaFin != null) {
-      setState(() {
-        contadorObras++;
-        // Usamos la lista estática en el widget RegistrarObraPage
-        RegistrarObraPage.obras.add({
-          'numero': contadorObras,
-          'nombre': _nombreController.text,
-          'cliente': _clienteController.text,
-          'ubicacion': _ubicacionController.text,
-          'fechaInicio': _fechaInicio,
-          'fechaFin': _fechaFin,
-        });
+      final db = await DatabaseHelper.instance.database;
 
-        // Limpiar campos después de guardar
-        _nombreController.clear();
-        _clienteController.clear();
-        _ubicacionController.clear();
-        _fechaInicio = null;
-        _fechaFin = null;
+      await db.insert('registroobras', {
+        'nombre': _nombreController.text.trim(),
+        'cliente': _clienteController.text.trim(),
+        'ubicacion': _ubicacionController.text.trim(),
+        'fechaInicio': _fechaInicio!.toIso8601String(),
+        'fechaFin': _fechaFin!.toIso8601String(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Obra registrada correctamente')),
       );
+
+      _nombreController.clear();
+      _clienteController.clear();
+      _ubicacionController.clear();
+      _fechaInicio = null;
+      _fechaFin = null;
+      setState(() {}); // para actualizar fechas en el widget
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completa todos los campos')),
@@ -87,7 +80,7 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ListaObrasPage(obras: RegistrarObraPage.obras),
+        builder: (context) => ListaObrasPage(), // Lista con base de datos
       ),
     );
   }

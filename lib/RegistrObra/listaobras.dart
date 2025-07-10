@@ -1,17 +1,33 @@
+import 'package:app_construccion/RegistrObra/editarobra.dart';
 import 'package:flutter/material.dart';
-import 'editarObra.dart';
+import '../database/database_helper.dart';
+
 
 class ListaObrasPage extends StatefulWidget {
-  final List<Map<String, dynamic>> obras;
-
-  const ListaObrasPage({super.key, required this.obras});
+  const ListaObrasPage({super.key});
 
   @override
   State<ListaObrasPage> createState() => _ListaObrasPageState();
 }
 
 class _ListaObrasPageState extends State<ListaObrasPage> {
-  void _eliminarObra(int index) async {
+  List<Map<String, dynamic>> _obras = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarObras();
+  }
+
+  Future<void> _cargarObras() async {
+    final db = await DatabaseHelper.instance.database;
+    final data = await db.query('registroobras');
+    setState(() {
+      _obras = data;
+    });
+  }
+
+  Future<void> _eliminarObra(int id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -25,25 +41,36 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
     );
 
     if (confirm == true) {
-      setState(() {
-        widget.obras.removeAt(index);
-      });
+      final db = await DatabaseHelper.instance.database;
+      await db.delete('registroobras', where: 'id = ?', whereArgs: [id]);
+      _cargarObras();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Obra eliminada')),
       );
     }
   }
 
-  void _editarObra(int index) {
-    Navigator.push(
+  Future<void> _editarObra(Map<String, dynamic> obra) async {
+    final resultado = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditarObraPage(
-          obra: widget.obras[index],
-          onActualizar: (obraActualizada) {
-            setState(() {
-              widget.obras[index] = obraActualizada;
-            });
+          obra: obra,
+          onActualizar: (obraActualizada) async {
+            final db = await DatabaseHelper.instance.database;
+            await db.update(
+              'registroobras',
+              {
+                'nombre': obraActualizada['nombre'],
+                'cliente': obraActualizada['cliente'],
+                'ubicacion': obraActualizada['ubicacion'],
+                'fechaInicio': obraActualizada['fechaInicio'],
+                'fechaFin': obraActualizada['fechaFin'],
+              },
+              where: 'id = ?',
+              whereArgs: [obra['id']],
+            );
+            _cargarObras();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Obra actualizada correctamente')),
             );
@@ -53,7 +80,8 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
     );
   }
 
-  String formatFecha(DateTime? fecha) {
+  String formatFecha(String fechaIso) {
+    final fecha = DateTime.tryParse(fechaIso);
     if (fecha == null) return 'Sin fecha';
     return '${fecha.day}/${fecha.month}/${fecha.year}';
   }
@@ -72,13 +100,13 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: widget.obras.isEmpty
+      body: _obras.isEmpty
           ? const Center(child: Text('No hay obras registradas'))
           : ListView.builder(
               padding: const EdgeInsets.all(10),
-              itemCount: widget.obras.length,
+              itemCount: _obras.length,
               itemBuilder: (context, index) {
-                final obra = widget.obras[index];
+                final obra = _obras[index];
 
                 return Card(
                   color: Colors.orange.shade50,
@@ -89,7 +117,7 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     title: Text(
-                      '${obra['nombre']} (Obra #${obra['numero']})',
+                      '${obra['nombre']} (ID #${obra['id']})',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
@@ -104,9 +132,9 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'editar') {
-                          _editarObra(index);
+                          _editarObra(obra);
                         } else if (value == 'eliminar') {
-                          _eliminarObra(index);
+                          _eliminarObra(obra['id']);
                         }
                       },
                       itemBuilder: (context) => [

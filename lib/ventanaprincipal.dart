@@ -21,7 +21,7 @@ class _MyHomePageVentanaPrincipalState
   static final List<Widget> _pages = [
     RegistrarObraPage(),
     AvanceObraPage(),
-    RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
+   //  RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),   activarla cuando crre la base de datos
     PersonalAsignadoPage(),
     CostosTotalesPage(),
   ];
