@@ -27,8 +27,10 @@ class _EditarObraPageState extends State<EditarObraPage> {
     _nombreController = TextEditingController(text: widget.obra['nombre']);
     _clienteController = TextEditingController(text: widget.obra['cliente']);
     _ubicacionController = TextEditingController(text: widget.obra['ubicacion']);
-    _fechaInicio = widget.obra['fechaInicio'];
-    _fechaFin = widget.obra['fechaFin'];
+
+    // Convertir fechas en String ISO a DateTime
+    _fechaInicio = DateTime.tryParse(widget.obra['fechaInicio']);
+    _fechaFin = DateTime.tryParse(widget.obra['fechaFin']);
   }
 
   Future<void> _selectFechaInicio() async {
@@ -57,9 +59,10 @@ class _EditarObraPageState extends State<EditarObraPage> {
       'nombre': _nombreController.text,
       'cliente': _clienteController.text,
       'ubicacion': _ubicacionController.text,
-      'fechaInicio': _fechaInicio,
-      'fechaFin': _fechaFin,
+      'fechaInicio': _fechaInicio?.toIso8601String(),
+      'fechaFin': _fechaFin?.toIso8601String(),
     };
+
     widget.onActualizar(obraActualizada);
     Navigator.pop(context);
   }
@@ -108,7 +111,16 @@ class _EditarObraPageState extends State<EditarObraPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _guardarCambios,
-              child: const Text('Guardar Cambios'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Guardar Cambios',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
