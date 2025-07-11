@@ -21,10 +21,10 @@ class _MyHomePageVentanaPrincipalState
   static final List<Widget> _pages = [
     RegistrarObraPage(),
     AvanceObraPage(),
-   //  RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),   activarla cuando crre la base de datos
+    RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
     PersonalAsignadoPage(),
     CostosTotalesPage(),
-  ];
+  ];0
 
   void _mostrarDialogo(String titulo, String contenido) {
     showDialog(

@@ -15,7 +15,7 @@ class EditarMaterialPage extends StatefulWidget {
 }
 
 class _EditarMaterialPageState extends State<EditarMaterialPage> {
-  late TextEditingController _materialController;
+  late TextEditingController _nombreController;
   late TextEditingController _cantidadController;
   late TextEditingController _costoController;
   late TextEditingController _observacionesController;
@@ -24,17 +24,17 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
   @override
   void initState() {
     super.initState();
-    _materialController = TextEditingController(
-      text: widget.material['material'],
-    );
+    _nombreController = TextEditingController(text: widget.material['nombre']);
     _cantidadController = TextEditingController(
-      text: widget.material['cantidad'],
+      text: widget.material['cantidad'].toString(),
     );
-    _costoController = TextEditingController(text: widget.material['costo']);
+    _costoController = TextEditingController(
+      text: widget.material['costoUnitario'].toString(),
+    );
     _observacionesController = TextEditingController(
-      text: widget.material['observaciones'],
+      text: widget.material['observaciones'] ?? '',
     );
-    _fechaUso = widget.material['fechaUso'];
+    _fechaUso = DateTime.tryParse(widget.material['fechaUso']);
   }
 
   Future<void> _selectFechaUso() async {
@@ -50,10 +50,10 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
   void _guardarCambios() {
     final actualizado = {
       ...widget.material,
-      'material': _materialController.text,
-      'cantidad': _cantidadController.text,
-      'costo': _costoController.text,
-      'fechaUso': _fechaUso,
+      'nombre': _nombreController.text,
+      'cantidad': int.tryParse(_cantidadController.text) ?? 0,
+      'costoUnitario': double.tryParse(_costoController.text) ?? 0.0,
+      'fechaUso': _fechaUso?.toIso8601String() ?? '',
       'observaciones': _observacionesController.text,
     };
 
@@ -70,7 +70,7 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Material'),
+        title: const Text('Editar Material Usado'),
         backgroundColor: const Color(0xFFFFFBE6),
         foregroundColor: Colors.black,
       ),
@@ -80,7 +80,7 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
         child: ListView(
           children: [
             TextField(
-              controller: _materialController,
+              controller: _nombreController,
               decoration: const InputDecoration(
                 labelText: 'Nombre del Material',
               ),
@@ -88,10 +88,14 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
             TextField(
               controller: _cantidadController,
               decoration: const InputDecoration(labelText: 'Cantidad'),
+              keyboardType: TextInputType.number,
             ),
             TextField(
               controller: _costoController,
-              decoration: const InputDecoration(labelText: 'Costo por unidad'),
+              decoration: const InputDecoration(
+                labelText: 'Costo por unidad (\$)',
+              ),
+              keyboardType: TextInputType.number,
             ),
             ListTile(
               title: Text(_formatFecha(_fechaUso)),
@@ -106,7 +110,16 @@ class _EditarMaterialPageState extends State<EditarMaterialPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _guardarCambios,
-              child: const Text('Guardar Cambios'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Guardar Cambios',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
