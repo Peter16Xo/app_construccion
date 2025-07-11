@@ -17,11 +17,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 3, onCreate: _createDB);
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -34,6 +30,21 @@ class DatabaseHelper {
         ubicacion TEXT NOT NULL,
         fechaInicio TEXT NOT NULL,
         fechaFin TEXT NOT NULL
+      )
+    ''');
+
+    // Crecion tabla personal
+    await db.execute('''
+      CREATE TABLE personalasignado (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombreObra TEXT NOT NULL,
+        cedula TEXT NOT NULL,
+        nombreCompleto TEXT NOT NULL,
+        cargo TEXT NOT NULL,
+        telefono TEXT NOT NULL,
+        tarea TEXT NOT NULL,
+        asistencia INTEGER NOT NULL,
+        FOREIGN KEY (nombreObra) REFERENCES registroobras(nombre) ON DELETE CASCADE
       )
     ''');
   }
