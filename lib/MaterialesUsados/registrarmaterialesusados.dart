@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import 'listamateriales.dart';
 
 class RegistrarMaterialesUsadosPage extends StatefulWidget {
@@ -8,10 +9,10 @@ class RegistrarMaterialesUsadosPage extends StatefulWidget {
 
   @override
   State<RegistrarMaterialesUsadosPage> createState() =>
-      _RegistrarMaterialesPageState();
+      _RegistrarMaterialesUsadosPageState();
 }
 
-class _RegistrarMaterialesPageState
+class _RegistrarMaterialesUsadosPageState
     extends State<RegistrarMaterialesUsadosPage> {
   final _formKey = GlobalKey<FormState>();
   final _materialController = TextEditingController();
@@ -20,9 +21,6 @@ class _RegistrarMaterialesPageState
   final _observacionesController = TextEditingController();
   DateTime? _fechaUso;
   Map<String, dynamic>? _obraSeleccionada;
-  static int contadorMateriales = 0;
-
-  static List<Map<String, dynamic>> materiales = [];
 
   Future<void> _seleccionarFecha() async {
     final picked = await showDatePicker(
@@ -34,35 +32,33 @@ class _RegistrarMaterialesPageState
     if (picked != null) setState(() => _fechaUso = picked);
   }
 
-  void _guardarMaterial() {
+  Future<void> _guardarMaterial() async {
     if (_formKey.currentState!.validate() &&
         _fechaUso != null &&
         _obraSeleccionada != null) {
-      setState(() {
-        contadorMateriales++;
+      final db = await DatabaseHelper.instance.database;
 
-        materiales.add({
-          'obra': _obraSeleccionada,
-          'numero': contadorMateriales,
-          'material': _materialController.text,
-          'cantidad': _cantidadController.text,
-          'costo': _costoController.text,
-          'fechaUso': _fechaUso,
-          'observaciones': _observacionesController.text,
-        });
-
-        // Limpiar campos
-        _materialController.clear();
-        _cantidadController.clear();
-        _costoController.clear();
-        _observacionesController.clear();
-        _fechaUso = null;
-        _obraSeleccionada = null;
+      await db.insert('materialesusados', {
+        'idObra': _obraSeleccionada!['id'],
+        'nombre': _materialController.text.trim(),
+        'cantidad': double.tryParse(_cantidadController.text) ?? 0.0,
+        'costoUnitario': double.tryParse(_costoController.text) ?? 0.0,
+        'fechaUso': _fechaUso!.toIso8601String(),
+        'observaciones': _observacionesController.text.trim(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Material registrado correctamente')),
       );
+
+      // Limpiar campos
+      _materialController.clear();
+      _cantidadController.clear();
+      _costoController.clear();
+      _observacionesController.clear();
+      _fechaUso = null;
+      _obraSeleccionada = null;
+      setState(() {}); // Para refrescar visual
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completa todos los campos')),
@@ -74,7 +70,7 @@ class _RegistrarMaterialesPageState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ListaMaterialesPage(materiales: materiales),
+        builder: (_) => ListaMaterialesPage(), 
       ),
     );
   }
@@ -124,11 +120,13 @@ class _RegistrarMaterialesPageState
               ),
               TextFormField(
                 controller: _cantidadController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Cantidad'),
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               TextFormField(
                 controller: _costoController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Costo por unidad (\$)',
                 ),

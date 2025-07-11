@@ -1,31 +1,59 @@
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
 import 'editarmateriales.dart';
 
 class ListaMaterialesPage extends StatefulWidget {
-  final List<Map<String, dynamic>> materiales;
-
-  const ListaMaterialesPage({super.key, required this.materiales});
+  const ListaMaterialesPage({super.key});
 
   @override
   State<ListaMaterialesPage> createState() => _ListaMaterialesPageState();
 }
 
 class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
-  String _formatFecha(DateTime? fecha) {
+  List<Map<String, dynamic>> _materiales = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarMateriales();
+  }
+
+  Future<void> _cargarMateriales() async {
+    final db = await DatabaseHelper.instance.database;
+    final data = await db.rawQuery('registromateriales');
+
+    setState(() {
+      _materiales = data;
+    });
+  }
+
+  String _formatFecha(String fechaIso) {
+    final fecha = DateTime.tryParse(fechaIso);
     if (fecha == null) return 'Sin fecha';
     return '${fecha.day}/${fecha.month}/${fecha.year}';
   }
 
-  void _editarMaterial(int index) {
-    Navigator.push(
+  Future<void> _editarMaterial(Map<String, dynamic> material) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => EditarMaterialPage(
-          material: widget.materiales[index],
-          onActualizar: (materialActualizado) {
-            setState(() {
-              widget.materiales[index] = materialActualizado;
-            });
+          material: material,
+          onActualizar: (materialActualizado) async {
+            final db = await DatabaseHelper.instance.database;
+            await db.update(
+              'materialesusados',
+              {
+                'nombre': materialActualizado['nombre'],
+                'cantidad': materialActualizado['cantidad'],
+                'costoUnitario': materialActualizado['costoUnitario'],
+                'fechaUso': materialActualizado['fechaUso'],
+                'observaciones': materialActualizado['observaciones'],
+              },
+              where: 'id = ?',
+              whereArgs: [material['id']],
+            );
+            _cargarMateriales();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Material actualizado correctamente'),
@@ -37,7 +65,7 @@ class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
     );
   }
 
-  void _eliminarMaterial(int index) async {
+  Future<void> _eliminarMaterial(int id) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -57,7 +85,9 @@ class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
     );
 
     if (confirm == true) {
-      setState(() => widget.materiales.removeAt(index));
+      final db = await DatabaseHelper.instance.database;
+      await db.delete('materialesusados', where: 'id = ?', whereArgs: [id]);
+      _cargarMateriales();
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Material eliminado')));
@@ -73,13 +103,14 @@ class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
         backgroundColor: const Color(0xFFFFFBE6),
         foregroundColor: Colors.black,
       ),
-      body: widget.materiales.isEmpty
+      body: _materiales.isEmpty
           ? const Center(child: Text('No hay materiales registrados'))
           : ListView.builder(
               padding: const EdgeInsets.all(10),
-              itemCount: widget.materiales.length,
+              itemCount: _materiales.length,
               itemBuilder: (context, index) {
-                final material = widget.materiales[index];
+                final material = _materiales[index];
+
                 return Card(
                   color: Colors.orange.shade50,
                   shape: RoundedRectangleBorder(
@@ -89,26 +120,31 @@ class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     title: Text(
-                      '${material['material']} (Material #${material['numero']})',
+                      '${material['nombre']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Obra: ${material['obra']['nombre']}'),
+                        Text(
+                          'Obra: ${material['nombreObra']} - ${material['clienteObra']}',
+                        ),
                         Text('Cantidad: ${material['cantidad']}'),
-                        Text('Costo: \$${material['costo']}'),
+                        Text('Costo: \$${material['costoUnitario']}'),
                         Text(
                           'Fecha de uso: ${_formatFecha(material['fechaUso'])}',
                         ),
-                        Text('Observaciones: ${material['observaciones']}'),
+                        Text(
+                          'Observaciones: ${material['observaciones'] ?? ''}',
+                        ),
                       ],
                     ),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'editar') {
-                          _editarMaterial(index);
+                          _editarMaterial(material);
                         } else if (value == 'eliminar') {
-                          _eliminarMaterial(index);
+                          _eliminarMaterial(material['id']);
                         }
                       },
                       itemBuilder: (_) => const [

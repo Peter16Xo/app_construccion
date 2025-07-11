@@ -51,6 +51,7 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
   }
 
   Future<void> _editarObra(Map<String, dynamic> obra) async {
+    // ignore: unused_local_variable
     final resultado = await Navigator.push(
       context,
       MaterialPageRoute(
