@@ -1,8 +1,8 @@
+import 'package:app_construccion/PersonalAsignado/registrarpersonal.dart';
 import 'package:flutter/material.dart';
 import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
-import 'personalAsignado.dart';
 import 'costosTotales.dart';
 import 'login.dart';
 
@@ -18,11 +18,20 @@ class _MyHomePageVentanaPrincipalState
     extends State<MyHomePageVentanaPrincipal> {
   int currentPageIndex = 0;
 
-  static final List<Widget> _pages = [
-    RegistrarObraPage(),
+  List<Map<String, dynamic>> obras = [];
+
+  List<Widget> get _pages => [
+    RegistrarObraPage(
+      obras: obras,
+      onObrasChanged: (nuevaLista) {
+        setState(() {
+          obras = nuevaLista;
+        });
+      },
+    ),
     AvanceObraPage(),
-   // RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
-    PersonalAsignadoPage(),
+    RegistrarMaterialesUsadosPage(obras: obras),
+    RegistrarPersonalPage(),
     CostosTotalesPage(),
   ];
 

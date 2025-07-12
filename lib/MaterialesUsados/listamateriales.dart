@@ -20,7 +20,11 @@ class _ListaMaterialesPageState extends State<ListaMaterialesPage> {
 
   Future<void> _cargarMateriales() async {
     final db = await DatabaseHelper.instance.database;
-    final data = await db.rawQuery('registromateriales');
+    final data = await db.rawQuery('''
+      SELECT m.*, o.nombre AS nombreObra, o.cliente AS clienteObra
+      FROM materialesusados m
+      JOIN registroobras o ON m.idObra = o.id
+    ''');
 
     setState(() {
       _materiales = data;
