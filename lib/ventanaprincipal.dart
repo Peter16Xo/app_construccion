@@ -18,13 +18,22 @@ class _MyHomePageVentanaPrincipalState
     extends State<MyHomePageVentanaPrincipal> {
   int currentPageIndex = 0;
 
-  static final List<Widget> _pages = [
-    RegistrarObraPage(),
+  List<Map<String, dynamic>> obras = [];
+
+  List<Widget> get _pages => [
+    RegistrarObraPage(
+      obras: obras,
+      onObrasChanged: (nuevaLista) {
+        setState(() {
+          obras = nuevaLista;
+        });
+      },
+    ),
     AvanceObraPage(),
-    RegistrarMaterialesUsadosPage(obras: RegistrarObraPage.obras),
+    RegistrarMaterialesUsadosPage(obras: obras),
     PersonalAsignadoPage(),
     CostosTotalesPage(),
-  ];0
+  ];
 
   void _mostrarDialogo(String titulo, String contenido) {
     showDialog(

@@ -3,7 +3,14 @@ import '../database/database_helper.dart';
 import 'listaobras.dart';
 
 class RegistrarObraPage extends StatefulWidget {
-  const RegistrarObraPage({super.key});
+  final List<Map<String, dynamic>> obras;
+  final Function(List<Map<String, dynamic>>) onObrasChanged;
+
+  const RegistrarObraPage({
+    super.key,
+    required this.obras,
+    required this.onObrasChanged,
+  });
 
   @override
   State<RegistrarObraPage> createState() => _RegistrarObraPageState();
@@ -51,13 +58,26 @@ class _RegistrarObraPageState extends State<RegistrarObraPage> {
         _fechaFin != null) {
       final db = await DatabaseHelper.instance.database;
 
-      await db.insert('registroobras', {
+      int id = await db.insert('registroobras', {
         'nombre': _nombreController.text.trim(),
         'cliente': _clienteController.text.trim(),
         'ubicacion': _ubicacionController.text.trim(),
         'fechaInicio': _fechaInicio!.toIso8601String(),
         'fechaFin': _fechaFin!.toIso8601String(),
       });
+
+      // Actualiza la lista de obras en el padre
+      final nuevaObra = {
+        'id': id,
+        'nombre': _nombreController.text.trim(),
+        'cliente': _clienteController.text.trim(),
+        'ubicacion': _ubicacionController.text.trim(),
+        'fechaInicio': _fechaInicio!.toIso8601String(),
+        'fechaFin': _fechaFin!.toIso8601String(),
+      };
+      final nuevaLista = List<Map<String, dynamic>>.from(widget.obras);
+      nuevaLista.add(nuevaObra);
+      widget.onObrasChanged(nuevaLista);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Obra registrada correctamente')),
