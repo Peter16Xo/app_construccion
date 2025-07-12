@@ -1,8 +1,8 @@
+import 'package:app_construccion/PersonalAsignado/registrarpersonal.dart';
 import 'package:flutter/material.dart';
 import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
-import 'personalAsignado.dart';
 import 'costosTotales.dart';
 import 'login.dart';
 
@@ -31,7 +31,7 @@ class _MyHomePageVentanaPrincipalState
     ),
     AvanceObraPage(),
     RegistrarMaterialesUsadosPage(obras: obras),
-    PersonalAsignadoPage(),
+    RegistrarPersonalPage(),
     CostosTotalesPage(),
   ];
 
