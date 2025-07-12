@@ -1,4 +1,3 @@
-import 'package:app_construccion/RegistrObra/editarobra.dart';
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 
@@ -51,33 +50,6 @@ class _ListaObrasPageState extends State<ListaObrasPage> {
   }
 
   Future<void> _editarObra(Map<String, dynamic> obra) async {
-    final resultado = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditarObraPage(
-          obra: obra,
-          onActualizar: (obraActualizada) async {
-            final db = await DatabaseHelper.instance.database;
-            await db.update(
-              'registroobras',
-              {
-                'nombre': obraActualizada['nombre'],
-                'cliente': obraActualizada['cliente'],
-                'ubicacion': obraActualizada['ubicacion'],
-                'fechaInicio': obraActualizada['fechaInicio'],
-                'fechaFin': obraActualizada['fechaFin'],
-              },
-              where: 'id = ?',
-              whereArgs: [obra['id']],
-            );
-            _cargarObras();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Obra actualizada correctamente')),
-            );
-          },
-        ),
-      ),
-    );
   }
 
   String formatFecha(String fechaIso) {
