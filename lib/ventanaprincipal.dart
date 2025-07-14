@@ -1,7 +1,7 @@
 import 'package:app_construccion/PersonalAsignado/registrarpersonal.dart';
 import 'package:flutter/material.dart';
 import 'RegistrObra/registrarobra.dart';
-import 'avanceObra.dart';
+import 'avanceobra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
 import 'costosTotales.dart';
 import 'login.dart';
