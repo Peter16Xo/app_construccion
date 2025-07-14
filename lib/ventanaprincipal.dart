@@ -1,9 +1,9 @@
 import 'package:app_construccion/PersonalAsignado/registrarpersonal.dart';
 import 'package:flutter/material.dart';
+import 'CostosTotales/listaCostoTotales.dart';
 import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
-import 'costosTotales.dart';
 import 'login.dart';
 
 class MyHomePageVentanaPrincipal extends StatefulWidget {
@@ -32,7 +32,7 @@ class _MyHomePageVentanaPrincipalState
     AvanceObraPage(),
     RegistrarMaterialesUsadosPage(obras: obras),
     RegistrarPersonalPage(),
-    CostosTotalesPage(),
+    ListaCostosTotalesPage(),
   ];
 
   void _mostrarDialogo(String titulo, String contenido) {
