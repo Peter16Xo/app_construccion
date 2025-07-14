@@ -1,0 +1,18 @@
+[
+  {
+    "cedula": "1234567890",
+    "nombres": "Juan",
+    "apellidos": "Pérez",
+    "direccion": "Av. Principal 123",
+    "aceptaTerminos": true,
+    "recibirNotificaciones": false
+  },
+  {
+    "cedula": "0987654321",
+    "nombres": "Ana",
+    "apellidos": "García",
+    "direccion": "Calle Secundaria 456",
+    "aceptaTerminos": true,
+    "recibirNotificaciones": true
+  }
+]
