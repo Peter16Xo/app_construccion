@@ -4,7 +4,6 @@ import 'CostosTotales/listaCostoTotales.dart';
 import 'RegistrObra/registrarobra.dart';
 import 'avanceObra.dart';
 import 'MaterialesUsados/registrarmaterialesusados.dart';
-import 'CostosTotales/listaCostoTotales.dart';
 import 'login.dart';
 
 class MyHomePageVentanaPrincipal extends StatefulWidget {
